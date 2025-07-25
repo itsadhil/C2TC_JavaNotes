@@ -1,5 +1,3 @@
-Here is your Java notes file converted into well-structured Markdown, suitable for GitHub repositories. All code is in triple-backtick blocks and lists/headings are Markdown-formatted.
-
 # Java Notes
 
 ## Java Terminologies
