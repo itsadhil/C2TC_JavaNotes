@@ -1,19 +1,17 @@
-# Java Notes
+**Java Notes**
 
-## Java Terminologies
+Java Terminologies  
+- JDK (Java Development Kit): The complete toolkit for Java development. Includes the compiler (javac), libraries, and various tools required to build, debug, and run Java applications.  
+- JVM (Java Virtual Machine): The engine that executes Java bytecode, enabling platform independence by abstracting the underlying hardware and OS.  
+- JRE (Java Runtime Environment): Contains the JVM and core libraries needed to run Java applications, but not development tools.  
+- ByteCode: The intermediate, platform-independent code generated after compilation. The JVM interprets and executes this code.
 
-- **JDK (Java Development Kit):** Toolkit for Java development. Includes the compiler (`javac`), libraries, and tools for building, debugging, and running Java applications.
-- **JVM (Java Virtual Machine):** Executes Java bytecode, enabling platform independence by abstracting hardware and OS.
-- **JRE (Java Runtime Environment):** Contains JVM and core libraries (not development tools).
-- **ByteCode:** The platform-independent code generated after compilation; executed by JVM.
+Running Java Programs Without Main Method  
+- In older Java versions, programs could run using only static blocks, without a main method.  
+- This approach is deprecated and unsupported in modern Java versions.  
+- Today, every Java application must have a main method as the entry point.
 
-## Running Java Programs Without Main Method
-
-- In older Java versions, you could run programs using only static blocks, without a main method.  
-- This is deprecated and unsupported in modern Java.  
-- Today, every Java application must have a `main` method.
-
-## Example: Static Blocks and Main Method
+Example: Static Blocks and Main Method  
 
 ```java
 package day1.basics;
@@ -35,21 +33,21 @@ public class SampleDemo {
 }
 ```
 
-**Static Block Execution Order:**
-1. "Hello I am Static"
-2. "I am Static block 2"
-3. Main method output
+Static Block Execution Order  
+- Static blocks execute in the order they appear in the class, before the main method.  
+- Output sequence:  
+	1. "Hello I am Static"  
+	2. "I am Static block 2"  
+	3. Main method output
 
-## Method Signature
+Method Signature  
+- A method signature includes:  
+	- Method name  
+	- Parameter types  
+	- Modifiers (e.g., public, static)  
+- It uniquely identifies a method for invocation and overloading.
 
-A method signature includes:
-- Method name
-- Parameter types
-- Modifiers (e.g., public, static)
-
-It uniquely identifies a method for invocation and overloading.
-
-## Example: Multiple Main Methods
+Example: Multiple Main Methods  
 
 ```java
 package day1.basics;
@@ -75,97 +73,91 @@ public class SampleDemo {
 }
 ```
 
-> Only the main method with this signature is executed:
-```java
-public static void main(String[] args)
-```
+Main Method Execution  
+- Only the main method with the signature:  
+	public static void main(String[] args)  
+is executed by the JVM as the program entry point.
 
-## Encapsulation in Java
+Encapsulation in Java  
+- Encapsulation wraps data (fields) and methods into a single unit (class).  
+- Achieved by making fields private and providing public getter/setter methods.  
+- Promotes data hiding, modularity, and maintainability.
 
-- Wrapping data (fields) and methods into a single unit (class)
-- Achieved by marking fields `private` and providing public getter/setter methods
-- Promotes data hiding, modularity, and maintainability
+Input Classes in Java  
+- Scanner: Reads user input from various sources (keyboard, files).  
+- BufferedReader: Efficiently reads text from character input streams.
 
-## Input Classes in Java
+Scanner Class  
+- Used for reading input from the user.  
+- Syntax:  
+	Scanner input = new Scanner(System.in);
 
-- **Scanner:** Reads user input from keyboard, files, etc.
-- **BufferedReader:** Efficiently reads text from character input streams.
+Common Scanner Methods  
+- next(): Reads a single word.  
+- nextLine(): Reads an entire line.  
+- nextInt(): Reads an integer.  
+- nextFloat(): Reads a float.  
+- nextDouble(): Reads a double.
 
-### Scanner Example
+Example:  
+	char c = reader.next().charAt(0); // Gets first character from input
 
-```java
-Scanner input = new Scanner(System.in);
-char c = input.next().charAt(0); // Gets first character
-```
+Other Scanner Methods:  
+- hasNextDouble(), hasNextInt(), hasNextLine(), hasNext()
 
-#### Common Scanner Methods
+BufferedReader Object Creation  
+- BufferedReader uses an internal buffer (default: 8192 characters) for efficient reading.  
+- Example:  
+	FileReader fr = new FileReader("filename.txt");  
+	BufferedReader br = new BufferedReader(fr);
 
-- `next()`: Reads a single word
-- `nextLine()`: Reads a whole line
-- `nextInt()`: Reads an integer
-- `nextFloat()`: Reads a float
-- `nextDouble()`: Reads a double
+Constructors in Java  
+- Special methods to initialize objects.  
+- Same name as class, no return type.  
+- Called automatically when an object is created.
 
-#### Other methods
+Types:  
+- Default Constructor: No parameters, provided by compiler if none defined.  
+- Parameterized Constructor: Accepts parameters for custom initialization.
 
-- `hasNextDouble()`
-- `hasNextInt()`
-- `hasNextLine()`
-- `hasNext()`
+Restrictions:  
+- Cannot be abstract, static, final, or synchronized.
 
-### BufferedReader Example
-
-```java
-FileReader fr = new FileReader("filename.txt");
-BufferedReader br = new BufferedReader(fr);
-```
-
-## Constructors in Java
-
-- Special methods with same name as class, no return type
-- Called automatically when an object is created
-
-Types:
-- Default Constructor: No parameters, compiler provides if none defined
-- Parameterized Constructor: Accepts custom parameters
-
-Restrictions:
-- Cannot be abstract, static, final, or synchronized
-
+Example:  
 ```java
 public SampleDemo() { }
 public SampleDemo(int x) { }
 public SampleDemo(String name, int age) { }
 ```
 
-### Implicit vs Explicit Constructors
+Implicit vs Explicit Constructors  
+- Implicit: Provided by compiler if none defined.  
+- Explicit: Defined by programmer, can have parameters.
 
-- **Implicit:** Provided by compiler if none defined
-- **Explicit:** Defined by programmer (can have parameters)
+Inheritance from Object Class  
+- Every Java class implicitly inherits from Object.  
+- Object class provides:  
+	- toString(): String representation.  
+	- equals(Object obj): Equality check.  
+	- hashCode(): Hash code.  
+	- getClass(): Runtime class info.  
+	- clone(): Copy object.  
+	- finalize(): Called before destruction.  
+- These methods can be overridden for custom behavior.
 
-## Inheritance from Object Class
-
-All Java classes implicitly inherit from `Object`. `Object` provides:
-- `toString()`
-- `equals(Object obj)`
-- `hashCode()`
-- `getClass()`
-- `clone()`
-- `finalize()`
-
-These can be overridden for custom behavior.
-
-## Constructor vs Methods
+Constructor vs Methods  
 
 | Feature        | Constructor                    | Method                        |
-|----------------|-------------------------------|-------------------------------|
-| Purpose        | Initializes object             | Defines action/behavior       |
-| Name           | Same as class                  | Any name except class name    |
-| Return Type    | None                           | Must have a return type       |
-| Invocation     | Called during creation         | Called explicitly             |
-| Inheritance    | Not inherited                  | Inherited (unless private)    |
-| Overloading    | Yes                            | Yes (can also override)       |
-| Modifiers      | Not abstract, static, final    | Can have these modifiers      |
+|----------------|-------------------------------|------------------------------|
+| Purpose        | Initializes objects            | Defines behaviors/actions     |
+| Name           | Same as class                 | Any name except class name   |
+| Return Type    | None                         | Must have a return type       |
+| Invocation     | Called automatically during object creation | Called explicitly via object |
+| Inheritance    | Not inherited                | Inherited (unless private)    |
+| Overloading    | Yes                         | Yes                          |
+| Modifiers      | Cannot be abstract, static, final, synchronized | Can have these modifiers |
+
+Example:
 
 ```java
 // Constructor
@@ -174,14 +166,16 @@ public SampleDemo() { }
 public void display() { }
 ```
 
-## Custom Data Structures
+Custom Data Structures  
+- User-defined ways to organize and store data.  
+- Examples:  
+	- Linked List: Nodes pointing to next node.  
+	- Stack: Last-In-First-Out (LIFO).  
+	- Queue: First-In-First-Out (FIFO).  
+	- Tree: Hierarchical nodes.  
+	- Graph: Nodes connected by edges.
 
-User-defined ways to organize/store data:
-- **Linked List:** Nodes point to next node
-- **Stack:** Last-In-First-Out (LIFO)
-- **Queue:** First-In-First-Out (FIFO)
-- **Tree:** Hierarchical
-- **Graph:** Nodes connected by edges
+Example:
 
 ```java
 class Node {
@@ -190,18 +184,22 @@ class Node {
 }
 ```
 
-## Game Development in Java
+Game Development in Java  
+- Designing and programming interactive games.
 
-- **Game Loop:** Updates state & renders graphics
-- **Graphics:** Drawing shapes, sprites, animations
-- **Input Handling:** Keyboard, mouse, touch
-- **Physics:** Movement, collisions, forces
-- **Sound:** Music/effects
-- **Assets:** Images, sounds, resources
+Key Concepts:  
+- Game Loop: Updates state and renders graphics.  
+- Graphics: Drawing shapes, sprites, animations.  
+- Input Handling: Keyboard, mouse, touch events.  
+- Physics: Movement, collisions, forces.  
+- Sound: Music and effects.  
+- Assets: Images, sounds, resources.
 
-**Popular libraries:** `libGDX`, `LWJGL`
+Popular Libraries:  
+- libGDX  
+- LWJGL (Lightweight Java Game Library)
 
-### Simple Game Loop Example
+Example (Simple Game Loop):
 
 ```java
 while (gameRunning) {
@@ -211,9 +209,11 @@ while (gameRunning) {
 }
 ```
 
-## Constructor Overloading
+Constructor Overloading  
+- Multiple constructors with different parameter lists.  
+- Allows flexible object creation.
 
-Multiple constructors with different parameter lists.
+Example:
 
 ```java
 class SampleDemo {
@@ -223,29 +223,31 @@ class SampleDemo {
 }
 ```
 
-## Packages in Java
-
-- Packs related classes, interfaces, sub-packages
-- Prevents naming conflicts, improves modularity, maintainability
+Packages in Java  
+- Packages organize related classes, interfaces, and sub-packages.  
+- Prevent naming conflicts, improve modularity and maintainability.
 
 Syntax:
+
 ```java
 package packageName;
 ```
 
 Example:
+
 ```java
 package day1.basics;
 ```
 
-- **Built-in packages:** `java.util`, `java.io`, `java.lang`, etc.
-- **Import** classes:
+- Built-in packages: java.util, java.io, java.lang, etc.  
+- Import classes:
+
 ```java
 import java.util.Scanner;
 ```
-- Nested packages create hierarchy.
 
-**Example:**
+Example:
+
 ```java
 // File: day1/basics/SampleDemo.java
 package day1.basics;
@@ -268,45 +270,46 @@ public class Main {
 }
 ```
 
-### Project Structure Example: ShoppingMall
+Project Structure Example: ShoppingMall  
 
-- **Company:** IBM
-- **Client:** Amazon
+- Company: IBM  
+- Client: Amazon  
 
-#### Modules
-- utils
-- entity
-- services
-- repositories
-- controllers
+Modules:  
+- Utils  
+- Entity  
+- Services  
+- Repositories  
+- Controllers  
 
-Example package structure:
-- `com.ibm.amazon.utils`
-- `com.ibm.amazon.entity`
-- `com.ibm.amazon.services`
-- `com.ibm.amazon.repositories`
-- `com.ibm.amazon.controllers`
+ShoppingMall Packages:  
+- com.ibm.amazon.utils  
+- com.ibm.amazon.entity  
+- com.ibm.amazon.services  
+- com.ibm.amazon.repositories  
+- com.ibm.amazon.controllers  
 
-## Common Built-in Java Packages
+Common Built-in Java Packages  
+- java.lang: Core language classes (String, Math, System, Object, etc.). Imported by default.  
+- java.util: Utility classes (collections, Date, Scanner, Random, etc.).  
+- java.io: Input/output classes (File, BufferedReader, InputStream, etc.).  
+- java.net: Networking classes (Socket, URL, HttpURLConnection, etc.).  
+- java.sql: Database connectivity (Connection, Statement, ResultSet, etc.).  
+- java.awt: Abstract Window Toolkit for GUI programming.  
+- javax.swing: GUI components (JFrame, JButton, etc.).
 
-- `java.lang`: Core language (String, Math, System, Object)
-- `java.util`: Collections, Date, Scanner, Random
-- `java.io`: File, BufferedReader, InputStream
-- `java.net`: Socket, URL, HttpURLConnection
-- `java.sql`: Database connectivity
-- `java.awt`: GUI (Abstract Window Toolkit)
-- `javax.swing`: GUI components (JFrame, JButton)
-
-## User-defined Packages
-
-Created by developers to organize their own classes/interfaces.
+User-defined Packages  
+- Created by developers to organize their own classes and interfaces.  
+- Help structure large projects, avoid naming conflicts, and improve maintainability.
 
 Syntax:
+
 ```java
 package com.companyname.clientname.module;
 ```
 
 Example:
+
 ```java
 // File: com/companyname/clientname/entity/MyClass.java
 package com.companyname.clientname.entity;
@@ -329,36 +332,39 @@ public class Main {
 }
 ```
 
-## Example Package Structure
+Example Package Structure  
+- com.zoho.capgemini.stressreducerapp.entity  
+- com.zoho.capgemini.stressreducerapp.utilities  
+- com.zoho.capgemini.stressreducerapp.exceptions  
+- com.zoho.capgemini.stressreducerapp.main  
 
-- `com.zoho.capgemini.stressreducerapp.entity`
-- `com.zoho.capgemini.stressreducerapp.utilities`
-- `com.zoho.capgemini.stressreducerapp.exceptions`
-- `com.zoho.capgemini.stressreducerapp.main`
+Access Modifiers in Java  
+- Control the visibility of classes, methods, and variables.
 
-## Access Modifiers in Java
-
-Controls visibility of classes, methods, and variables.
+Types:
 
 | Modifier   | Visibility                                         |
 |------------|----------------------------------------------------|
-| public     | Accessible everywhere                              |
-| protected  | Accessible inside package & subclasses             |
-| (default)  | Accessible in package                              |
-| private    | Accessible only inside the same class              |
+| public     | Accessible from any other class.                   |
+| protected  | Accessible within the same package and subclasses.|
+| default    | Accessible only within the same package.           |
+| private    | Accessible only within the same class.             |
 
-### Example
+Example:
 
 ```java
-public int x;
-protected int y;
-int z;           // Default
-private int w;
+public int x;        // Accessible everywhere
+protected int y;     // Accessible in package & subclasses
+int z;               // Accessible in package (default)
+private int w;       // Accessible only in this class
 ```
 
-## Examples of Access Modifiers
+Private Access Modifier  
+- Accessible only within the same class.  
+- Not accessible from outside, including subclasses and other classes in the same package.  
+- Used for encapsulation and data hiding.
 
-### Private
+Example:
 
 ```java
 class Example {
@@ -369,7 +375,11 @@ class Example {
 }
 ```
 
-### Default
+Default Access Modifier  
+- No modifier specified.  
+- Accessible only within the same package.
+
+Example:
 
 ```java
 class Example {
@@ -380,7 +390,10 @@ class Example {
 }
 ```
 
-### Protected
+Protected Access Modifier  
+- Accessible within the same package and in subclasses (even in different packages).
+
+Example:
 
 ```java
 class Example {
@@ -391,7 +404,10 @@ class Example {
 }
 ```
 
-### Public
+Public Access Modifier  
+- Accessible from any other class, regardless of package.
+
+Example:
 
 ```java
 public class Example {
@@ -402,15 +418,16 @@ public class Example {
 }
 ```
 
-## Real-world Example: Encapsulation
+Real-world Example: Encapsulation  
+Suppose you are developing a banking application. Sensitive data like account balance and transaction history should be hidden from direct access. Use private fields and public methods for secure access.
 
-Suppose you are developing a banking application — sensitive data like account balance should be hidden from direct access.
+Example:
 
 ```java
 public class BankAccount {
-	private double balance;
+	private double balance; // private field
 
-	public double getBalance() {
+	public double getBalance() { // public method
 		return balance;
 	}
 
@@ -428,10 +445,11 @@ public class BankAccount {
 }
 ```
 
-## Multiple Inheritance in Java
+Multiple Inheritance in Java  
+- Java does not support multiple inheritance (a class extending more than one class) to avoid ambiguity (diamond problem).  
+- Instead, Java uses interfaces for multiple inheritance of type.
 
-- A class **cannot extend more than one class** (avoids diamond problem)
-- Achieved via **interfaces**
+Example:
 
 ```java
 interface A {
@@ -448,9 +466,10 @@ class C implements A, B {
 }
 ```
 
-## Constructor Inheritance
+Constructor Inheritance  
+- Constructors are not inherited, but you can call a parent constructor using super().
 
-- Constructors are **not inherited**, but you can call parent with `super()`
+Example:
 
 ```java
 class Parent {
@@ -461,51 +480,52 @@ class Parent {
 
 class Child extends Parent {
 	Child() {
-		super();
+		super(); // Calls Parent constructor
 		System.out.println("Child constructor");
 	}
 }
 ```
 
-## Constructor Modifiers
+Constructor Modifiers  
+- private: Allowed. Used for Singleton, utility, or factory patterns.  
+- abstract: Not allowed. Constructors cannot be abstract.  
+- final: Not allowed. Constructors cannot be final.
 
-- `private`: Allowed (Singleton, utility, factory patterns)
-- `abstract`: Not allowed
-- `final`: Not allowed
+Accessing Base Class Variables  
+- public: Accessible in derived class.  
+- protected: Accessible in derived class (even in different packages).  
+- default: Accessible only if derived class is in same package.  
+- private: Not accessible directly in derived class.
 
-## Accessing Base Class Variables
+Object Access from Main Program  
+- You cannot directly access the object from the main program to the class. Use the `this` keyword to refer to the current object within the class.
 
-- `public`: Accessible in derived class
-- `protected`: Accessible in derived class (even in different packages)
-- `default`: Accessible in derived class only if in same package
-- `private`: Not accessible directly in derived class
+Static Keyword  
+The `static` keyword in Java is used to create elements that belong to the class itself rather than to instances (objects) of the class.
 
-## Object Access from Main Program
+Static Variables  
+- Shared across all instances of the class (class variables).  
+- Only one copy exists, regardless of how many objects are created.  
+- Accessed directly through the class name: ClassName.variableName.  
+- Initialized when the class is loaded by the JVM.  
+- Used mainly for memory management.
 
-You cannot directly access the object from the main program to the class. Use the `this` keyword to refer to current object within the class.
+Example:
 
-## Static Keyword
-
-The `static` keyword in Java creates elements that belong to the **class**, not to instances (objects).
-
-**Static Variables**
-- Shared across all instances (class variables)
-- Only one copy (regardless of object count)
-- Accessed via `ClassName.variableName`
-
-**Example:**
 ```java
 class Example {
 	static int counter = 0;
 }
 ```
 
-**Static Methods**
-- Belong to the class (not objects)
-- Called via `ClassName.methodName()`
-- Cannot access non-static members directly
-- Cannot use `this` or `super` keywords
-- Cannot be overridden (only hidden)
+Static Methods  
+- Belong to the class, not to objects.  
+- Called through the class name: ClassName.methodName().  
+- Cannot access non-static (instance) variables/methods directly.  
+- Cannot use this or super keywords.  
+- Cannot be overridden (only hidden in subclasses).
+
+Example:
 
 ```java
 class Example {
@@ -515,10 +535,12 @@ class Example {
 }
 ```
 
-**Static Blocks**
-- Execute when the class is loaded
-- Initialize static variables/one-time setup
-- Multiple blocks run in order
+Static Blocks  
+- Execute when the class is loaded.  
+- Used to initialize static variables or perform one-time setup.  
+- Multiple static blocks execute in the order they appear.
+
+Example:
 
 ```java
 class Example {
@@ -528,10 +550,12 @@ class Example {
 }
 ```
 
-**Static Classes**
-- Only nested classes can be static
-- Don't require an instance of the outer class
-- Can access only static members of outer class
+Static Classes  
+- Only nested classes can be static.  
+- Static nested classes do not need an instance of the outer class.  
+- Can only access static members of the outer class.
+
+Example:
 
 ```java
 class Outer {
@@ -543,116 +567,246 @@ class Outer {
 }
 ```
 
-### Common Use Cases
+Common Use Cases  
+- Utility methods (e.g., Math.random(), Arrays.sort()).  
+- Constants (e.g., Math.PI, Integer.MAX_VALUE).  
+- Factory methods (e.g., getInstance()).  
+- Counters and shared resources.  
+- Main method (program entry point).
 
-- Utility methods (e.g., `Math.random()`, `Arrays.sort()`)
-- Constants (e.g., `Math.PI`)
-- Factory methods
-- Counters/shared resources
-- The main method
+Features of Static Keyword  
+- Can be applied to variables, methods, blocks, inner classes.  
+- Members belong to the class, not to any specific object.  
+- Static members are shared among all instances of the class.  
+- Static methods cannot access non-static (instance) members directly.  
+- Static blocks are executed when the class is loaded.  
+- Static nested classes can access only static members of the outer class.
 
-### Features of `static` Keyword
+Can we overload the Static method?  
+- Yes, you can overload static methods in Java by changing their parameter list.
 
-- Can be applied to variables, methods, blocks, inner classes
-- Members belong to the class, are shared
-- Static methods can't access non-static members
-- Static blocks executed when the class loads
-- Static nested classes access only static members of outer
+Static vs Instance Member Table  
 
-### Static Method Overloading
+| Case                              | Instance | Static |
+|----------------------------------|----------|--------|
+| Invoke Instance Method            | ✔        |        |
+| Access Instance Variable          | ✔        |        |
+| Invoke Static Method              | ✔        | ✔      |
+| Access Static Variable            | ✔        | ✔      |
+| Invoke Instance from Static       |          | ❌     |
+| Access Instance Variable from Static |      | ❌     |
 
-You can overload static methods in Java by changing their parameter list.
-
-## Static vs Instance Member Table
-
-| Case                   | Instance | Static        |
-|------------------------|----------|--------------|
-| Invoke Instance Method | ✔️       |              |
-| Access Instance Var.   | ✔️       |              |
-| Invoke Static Method   | ✔️       | ✔️           |
-| Access Static Var.     | ✔️       | ✔️           |
-| Invoke Instance (from static) |    | ❌ (directly) |
-| Access Instance Var. (from static) | | ❌ (directly) |
-
-## Static Blocks in Java
-
-- Execute **once** when class is loaded
-- Run **before any instance** is created
-- **Before main method**
+Static Blocks in Java  
+- Execute **once** when class is loaded  
+- Run **before any instance** is created  
+- Before main method  
 - Run in order of appearance
+
+Example:
 
 ```java
 public class Example {
 	static {
 		System.out.println("First static block");
 	}
+	
 	public static void main(String[] args) {
 		System.out.println("Main method");
 	}
+	
 	static {
 		System.out.println("Second static block");
 	}
 }
-// Output:
-// First static block
-// Second static block
-// Main method
 ```
 
-**Static blocks are ideal for:** one-time setups before the class is used.
+Output:
 
-### Real-World Static Example: Flight Booking System
+```
+First static block
+Second static block
+Main method
+```
 
-All users see the same seat count; changes are reflected everywhere.
+Static blocks are ideal for one-time setups before the class is used.
+
+Real-World Static Example: Flight Booking System  
 
 ```java
 public class FlightBookingSystem {
-	private static int availableSeats = 180; // Boeing 737 capacity
-
+	private static int availableSeats = 180;  // Boeing 737 capacity
+	
 	public static synchronized boolean bookSeat() {
 		if (availableSeats > 0) {
 			availableSeats--;
-			return true; // Booking successful
+			return true;  // Booking successful
 		}
-		return false; // No seats available
+		return false;  // No seats available
 	}
-
+	
 	public static int getAvailableSeats() {
 		return availableSeats;
 	}
 }
 ```
 
-## Final Keyword
+Final Keyword  
+- Used with variables, methods, or classes to indicate unchangeability.  
+- Final variable: Value cannot change after initialization.  
+- Final method: Cannot be overridden.  
+- Final class: Cannot be inherited.
 
-- Declared with variable, method, or class indicating it **cannot be modified**
-	- Final variable: value cannot change
-	- Final method: cannot be overridden
-	- Final class: cannot be inherited
+Blank static final variable?  
+- Can declare static final without initialization but must initialize inside static block.
 
-### Blank static final variable?
+Abstract Classes and Methods in Java  
 
-Can be declared without initialization, must be initialized in a static block.
+Abstract Methods:  
+- An abstract method is declared without body.  
+- Can only be declared inside abstract class.  
+- Subclasses must override abstract methods unless subclass is also abstract.
 
-### Overriding and Inheritance
+Abstract Classes:  
+- Cannot instantiate directly.  
+- May contain abstract and concrete methods.
 
-- **Cannot override** a final method
-- **Cannot inherit** a final class
+Example: 
 
-### Some final inbuilt classes
+```java
+abstract class Shape {
+	abstract void draw();
+}
+```
 
-- `String`, `Integer`, `Double`, `Float`, `Boolean`, `Long`, `Short`, `Byte`, `Character`, `Math`, `System`, `Collections`, `Arrays`, `BigDecimal`, `BigInteger`
+Reference Assignments:  
+- Abstract class reference can refer to objects of derived classes enabling polymorphism.
 
-### Use of Final Keyword
+Example:
 
-- Imposes restrictions
-- **Final Variables:** Constants (use `ALL_CAPS`)
-- **Final Methods:** Can't be overridden (critical methods)
-- **Final Classes:** Can't be extended (security-sensitive, design integrity)
-- **Final Parameters:** Reference can't change within the method
+```java
+abstract class Animal {
+	abstract void sound();
+}
 
-### Blank Final Variables
+class Dog extends Animal {
+	void sound() { System.out.println("Woof!"); }
+}
 
-- Declared without initialization
-- Must be initialized in every constructor (instance)
-- Must be initialized in a static block (static final)
+class Cat extends Animal {
+	void sound() { System.out.println("Meow!"); }
+}
+
+public class Main {
+	public static void main(String[] args) {
+		Animal a1 = new Dog();
+		Animal a2 = new Cat();
+		a1.sound(); // Woof!
+		a2.sound(); // Meow!
+	}
+}
+```
+
+Summary Table
+
+| Feature                   | Abstract Class         | Abstract Method          |
+|---------------------------|-----------------------|-------------------------|
+| Can be instantiated?      | No                    | N/A                     |
+| Can have abstract methods? | Yes                   | Only in abstract classes|
+| Can contain concrete methods? | Yes               | No                      |
+| Used for                  | Inheritance, polymorphism | Force subclass implementation |
+
+Polymorphism in Java  
+
+Definition:  
+- Ability of an object to take many forms.  
+- Greek origin: poly = many, morph = forms.  
+- Same functionality with different logic execution.
+
+Types:  
+
+1. Compile-Time Polymorphism (Method Overloading)  
+2. Run-Time Polymorphism (Method Overriding)
+
+Characteristics of Polymorphism
+
+- Multiple forms for same method call.  
+- Method overloading (compile time).  
+- Method overriding (runtime).  
+- Superclass references to subclass objects.  
+- Supports abstraction and flexibility.
+
+Advantages:  
+
+- Code reusability.  
+- Extensibility.  
+- Flexibility.  
+- Easier maintenance.  
+- Improved readability.
+
+Disadvantages:  
+
+- Complexity.  
+- Performance overhead at runtime.  
+- Debugging difficulty.  
+- Hidden behavior confusion.  
+- Increased memory usage.  
+- Possible misuse and overuse.  
+- Limited compiler optimization.  
+- Casting risks.  
+- Design constraints if poorly designed.
+
+Types of Polymorphism
+
+| Type                   | Description                                  | Binding    |
+|------------------------|----------------------------------------------|------------|
+| Compile-Time Polymorphism | Method Overloading (same name, different parameters) | Compile Time |
+| Run-Time Polymorphism   | Method Overriding (subclass provides implementation) | Run Time   |
+
+Compile-Time Polymorphism (Static Polymorphism)  
+
+- Method selected at compile time.  
+- Achieved via method overloading.  
+- Fast performance.
+
+Example:
+
+```java
+class Printer {
+	void print(int num) {
+		System.out.println("Printing integer: " + num);
+	}
+	void print(String str) {
+		System.out.println("Printing string: " + str);
+	}
+}
+
+Printer p = new Printer();
+p.print(100);       // print(int)
+p.print("Hello");   // print(String)
+```
+
+Types of Overloading in Java  
+
+1. **Method Overloading**: Same method name, different parameter lists.  
+2. **Constructor Overloading**: Multiple constructors with different parameters.  
+3. **Operator Overloading**: Not user-defined in Java (built-in only for String concatenation).
+
+Example Method Overloading:
+
+```java
+class MathUtils {
+	int add(int a, int b)           { return a + b; }
+	double add(double a, double b)  { return a + b; }
+	int add(int a, int b, int c)    { return a + b + c; }
+}
+```
+
+Constructor Overloading Example:
+
+```java
+class Student {
+	Student() {}
+	Student(String name) {}
+	Student(String name, int age) {}
+}
+```
