@@ -6778,3 +6778,923 @@ public class ExceptionPerformancePatterns {
 6. **Performance Optimization**: Balancing robustness with performance requirements
 
 These advanced concepts enable the development of robust, maintainable, and efficient Java applications with sophisticated error handling capabilities.
+
+User Defined Exceptions (Custom Exceptions):
+─────────────────────────────────────────────
+
+User-defined exceptions, also known as custom exceptions, are exception classes created by developers to handle specific error conditions that are unique to their applications. These exceptions provide more meaningful error information and enable better error handling strategies tailored to specific business logic requirements.
+
+What are User Defined Exceptions?
+═══════════════════════════════════════════
+
+**Definition:**
+- Custom exception classes created by extending existing exception classes
+- Designed to represent specific error conditions in your application domain
+- Provide more meaningful and context-specific error information
+- Enable fine-grained exception handling for different business scenarios
+
+**Key Benefits:**
+- **Domain-Specific**: Represent errors specific to your application's business logic
+- **Meaningful Names**: Self-documenting exception names that clearly indicate the problem
+- **Enhanced Information**: Can include additional data relevant to the specific error
+- **Better Debugging**: Easier to identify and fix issues with specific exception types
+- **Cleaner Code**: More readable exception handling with domain-specific exception types
+
+Basic Custom Exception Creation:
+═══════════════════════════════════════════
+
+**Exception Class Hierarchy:**
+```
+Throwable
+├── Error (system errors)
+└── Exception
+    ├── RuntimeException (unchecked exceptions)
+    │   ├── NullPointerException
+    │   ├── IllegalArgumentException
+    │   └── Your Custom Runtime Exceptions
+    └── Checked Exceptions
+        ├── IOException
+        ├── SQLException
+        └── Your Custom Checked Exceptions
+```
+
+Example 1: Basic Custom Exception Classes
+─────────────────────────────────────────────
+
+```java
+// Custom checked exception
+class InsufficientFundsException extends Exception {
+    private double requestedAmount;
+    private double availableBalance;
+    
+    // Default constructor
+    public InsufficientFundsException() {
+        super("Insufficient funds in account");
+    }
+    
+    // Constructor with message
+    public InsufficientFundsException(String message) {
+        super(message);
+    }
+    
+    // Constructor with detailed information
+    public InsufficientFundsException(double requestedAmount, double availableBalance) {
+        super(String.format("Insufficient funds: Requested %.2f, Available %.2f", 
+              requestedAmount, availableBalance));
+        this.requestedAmount = requestedAmount;
+        this.availableBalance = availableBalance;
+    }
+    
+    // Constructor with message and cause
+    public InsufficientFundsException(String message, Throwable cause) {
+        super(message, cause);
+    }
+    
+    // Getters for additional information
+    public double getRequestedAmount() { return requestedAmount; }
+    public double getAvailableBalance() { return availableBalance; }
+    public double getShortfall() { return requestedAmount - availableBalance; }
+}
+
+// Custom unchecked exception
+class InvalidAccountNumberException extends RuntimeException {
+    private String accountNumber;
+    private String validationRule;
+    
+    public InvalidAccountNumberException(String accountNumber) {
+        super("Invalid account number: " + accountNumber);
+        this.accountNumber = accountNumber;
+    }
+    
+    public InvalidAccountNumberException(String accountNumber, String validationRule) {
+        super(String.format("Invalid account number '%s': %s", accountNumber, validationRule));
+        this.accountNumber = accountNumber;
+        this.validationRule = validationRule;
+    }
+    
+    public String getAccountNumber() { return accountNumber; }
+    public String getValidationRule() { return validationRule; }
+}
+
+// Usage example
+public class BankingSystemExample {
+    
+    public static class BankAccount {
+        private String accountNumber;
+        private double balance;
+        
+        public BankAccount(String accountNumber, double initialBalance) {
+            validateAccountNumber(accountNumber);
+            this.accountNumber = accountNumber;
+            this.balance = initialBalance;
+        }
+        
+        private void validateAccountNumber(String accountNumber) {
+            if (accountNumber == null || accountNumber.trim().isEmpty()) {
+                throw new InvalidAccountNumberException(accountNumber, "Account number cannot be null or empty");
+            }
+            
+            if (accountNumber.length() != 10) {
+                throw new InvalidAccountNumberException(accountNumber, "Account number must be exactly 10 digits");
+            }
+            
+            if (!accountNumber.matches("\\d{10}")) {
+                throw new InvalidAccountNumberException(accountNumber, "Account number must contain only digits");
+            }
+        }
+        
+        public void withdraw(double amount) throws InsufficientFundsException {
+            if (amount <= 0) {
+                throw new IllegalArgumentException("Withdrawal amount must be positive");
+            }
+            
+            if (amount > balance) {
+                throw new InsufficientFundsException(amount, balance);
+            }
+            
+            balance -= amount;
+            System.out.println("Withdrawn: $" + amount + ", New balance: $" + balance);
+        }
+        
+        public void deposit(double amount) {
+            if (amount <= 0) {
+                throw new IllegalArgumentException("Deposit amount must be positive");
+            }
+            
+            balance += amount;
+            System.out.println("Deposited: $" + amount + ", New balance: $" + balance);
+        }
+        
+        public double getBalance() { return balance; }
+        public String getAccountNumber() { return accountNumber; }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            // Test custom exception scenarios
+            BankAccount account = new BankAccount("1234567890", 100.0);
+            
+            // Normal operations
+            account.deposit(50.0);
+            account.withdraw(30.0);
+            
+            // This will throw InsufficientFundsException
+            account.withdraw(200.0);
+            
+        } catch (InvalidAccountNumberException e) {
+            System.err.println("Account validation error: " + e.getMessage());
+            System.err.println("Invalid account: " + e.getAccountNumber());
+            System.err.println("Validation rule: " + e.getValidationRule());
+        } catch (InsufficientFundsException e) {
+            System.err.println("Transaction failed: " + e.getMessage());
+            System.err.println("Shortfall: $" + e.getShortfall());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid input: " + e.getMessage());
+        }
+        
+        try {
+            // Test invalid account number
+            BankAccount invalidAccount = new BankAccount("123", 100.0);
+        } catch (InvalidAccountNumberException e) {
+            System.err.println("Account creation failed: " + e.getMessage());
+        }
+    }
+}
+```
+
+Advanced Custom Exception Patterns:
+═══════════════════════════════════════════
+
+Example 2: Exception Hierarchy for Complex Domain
+─────────────────────────────────────────────
+
+```java
+// Base business exception
+abstract class BusinessException extends Exception {
+    private final String errorCode;
+    private final long timestamp;
+    
+    protected BusinessException(String errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+        this.timestamp = System.currentTimeMillis();
+    }
+    
+    protected BusinessException(String errorCode, String message, Throwable cause) {
+        super(message, cause);
+        this.errorCode = errorCode;
+        this.timestamp = System.currentTimeMillis();
+    }
+    
+    public String getErrorCode() { return errorCode; }
+    public long getTimestamp() { return timestamp; }
+    
+    public abstract String getCategory();
+    public abstract int getSeverityLevel(); // 1=Low, 2=Medium, 3=High, 4=Critical
+}
+
+// Validation exceptions
+class ValidationException extends BusinessException {
+    private final String fieldName;
+    private final Object invalidValue;
+    
+    public ValidationException(String fieldName, Object invalidValue, String message) {
+        super("VAL_001", message);
+        this.fieldName = fieldName;
+        this.invalidValue = invalidValue;
+    }
+    
+    @Override
+    public String getCategory() { return "VALIDATION"; }
+    
+    @Override
+    public int getSeverityLevel() { return 2; }
+    
+    public String getFieldName() { return fieldName; }
+    public Object getInvalidValue() { return invalidValue; }
+}
+
+// Authentication exceptions
+class AuthenticationException extends BusinessException {
+    private final String username;
+    private final String authenticationMethod;
+    
+    public AuthenticationException(String username, String authenticationMethod, String message) {
+        super("AUTH_001", message);
+        this.username = username;
+        this.authenticationMethod = authenticationMethod;
+    }
+    
+    @Override
+    public String getCategory() { return "AUTHENTICATION"; }
+    
+    @Override
+    public int getSeverityLevel() { return 3; }
+    
+    public String getUsername() { return username; }
+    public String getAuthenticationMethod() { return authenticationMethod; }
+}
+
+// Authorization exceptions
+class AuthorizationException extends BusinessException {
+    private final String username;
+    private final String requiredPermission;
+    private final String resource;
+    
+    public AuthorizationException(String username, String requiredPermission, String resource) {
+        super("AUTHZ_001", 
+              String.format("User '%s' lacks permission '%s' for resource '%s'", 
+                          username, requiredPermission, resource));
+        this.username = username;
+        this.requiredPermission = requiredPermission;
+        this.resource = resource;
+    }
+    
+    @Override
+    public String getCategory() { return "AUTHORIZATION"; }
+    
+    @Override
+    public int getSeverityLevel() { return 3; }
+    
+    public String getUsername() { return username; }
+    public String getRequiredPermission() { return requiredPermission; }
+    public String getResource() { return resource; }
+}
+
+// Business rule exceptions
+class BusinessRuleException extends BusinessException {
+    private final String ruleName;
+    private final Map<String, Object> context;
+    
+    public BusinessRuleException(String ruleName, String message, Map<String, Object> context) {
+        super("BUS_001", message);
+        this.ruleName = ruleName;
+        this.context = new HashMap<>(context);
+    }
+    
+    @Override
+    public String getCategory() { return "BUSINESS_RULE"; }
+    
+    @Override
+    public int getSeverityLevel() { return 2; }
+    
+    public String getRuleName() { return ruleName; }
+    public Map<String, Object> getContext() { return new HashMap<>(context); }
+}
+
+// Data access exceptions
+class DataAccessException extends BusinessException {
+    private final String operation;
+    private final String entityType;
+    private final Object entityId;
+    
+    public DataAccessException(String operation, String entityType, Object entityId, String message, Throwable cause) {
+        super("DATA_001", message, cause);
+        this.operation = operation;
+        this.entityType = entityType;
+        this.entityId = entityId;
+    }
+    
+    @Override
+    public String getCategory() { return "DATA_ACCESS"; }
+    
+    @Override
+    public int getSeverityLevel() { return 3; }
+    
+    public String getOperation() { return operation; }
+    public String getEntityType() { return entityType; }
+    public Object getEntityId() { return entityId; }
+}
+```
+
+Example 3: Exception Builder Pattern
+─────────────────────────────────────────────
+
+```java
+// Custom exception with builder pattern for complex construction
+class ApplicationException extends Exception {
+    private final String errorCode;
+    private final String category;
+    private final int severityLevel;
+    private final Map<String, Object> metadata;
+    private final long timestamp;
+    private final String userMessage;
+    private final String technicalMessage;
+    
+    private ApplicationException(Builder builder) {
+        super(builder.technicalMessage, builder.cause);
+        this.errorCode = builder.errorCode;
+        this.category = builder.category;
+        this.severityLevel = builder.severityLevel;
+        this.metadata = new HashMap<>(builder.metadata);
+        this.timestamp = builder.timestamp;
+        this.userMessage = builder.userMessage;
+        this.technicalMessage = builder.technicalMessage;
+    }
+    
+    // Getters
+    public String getErrorCode() { return errorCode; }
+    public String getCategory() { return category; }
+    public int getSeverityLevel() { return severityLevel; }
+    public Map<String, Object> getMetadata() { return new HashMap<>(metadata); }
+    public long getTimestamp() { return timestamp; }
+    public String getUserMessage() { return userMessage; }
+    public String getTechnicalMessage() { return technicalMessage; }
+    
+    // Builder class
+    public static class Builder {
+        private String errorCode;
+        private String category;
+        private int severityLevel = 2; // default medium severity
+        private Map<String, Object> metadata = new HashMap<>();
+        private long timestamp = System.currentTimeMillis();
+        private String userMessage;
+        private String technicalMessage;
+        private Throwable cause;
+        
+        public Builder errorCode(String errorCode) {
+            this.errorCode = errorCode;
+            return this;
+        }
+        
+        public Builder category(String category) {
+            this.category = category;
+            return this;
+        }
+        
+        public Builder severityLevel(int severityLevel) {
+            this.severityLevel = severityLevel;
+            return this;
+        }
+        
+        public Builder addMetadata(String key, Object value) {
+            this.metadata.put(key, value);
+            return this;
+        }
+        
+        public Builder metadata(Map<String, Object> metadata) {
+            this.metadata = new HashMap<>(metadata);
+            return this;
+        }
+        
+        public Builder timestamp(long timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+        
+        public Builder userMessage(String userMessage) {
+            this.userMessage = userMessage;
+            return this;
+        }
+        
+        public Builder technicalMessage(String technicalMessage) {
+            this.technicalMessage = technicalMessage;
+            return this;
+        }
+        
+        public Builder cause(Throwable cause) {
+            this.cause = cause;
+            return this;
+        }
+        
+        public ApplicationException build() {
+            // Validation
+            if (errorCode == null || errorCode.trim().isEmpty()) {
+                throw new IllegalArgumentException("Error code is required");
+            }
+            if (technicalMessage == null || technicalMessage.trim().isEmpty()) {
+                throw new IllegalArgumentException("Technical message is required");
+            }
+            
+            return new ApplicationException(this);
+        }
+    }
+    
+    // Static factory methods for common scenarios
+    public static ApplicationException validationError(String fieldName, Object value, String message) {
+        return new Builder()
+            .errorCode("VAL_001")
+            .category("VALIDATION")
+            .severityLevel(2)
+            .userMessage("Please check your input and try again")
+            .technicalMessage(message)
+            .addMetadata("fieldName", fieldName)
+            .addMetadata("invalidValue", value)
+            .build();
+    }
+    
+    public static ApplicationException authenticationError(String username, String method) {
+        return new Builder()
+            .errorCode("AUTH_001")
+            .category("AUTHENTICATION")
+            .severityLevel(3)
+            .userMessage("Authentication failed. Please check your credentials")
+            .technicalMessage("Authentication failed for user: " + username)
+            .addMetadata("username", username)
+            .addMetadata("authMethod", method)
+            .build();
+    }
+    
+    public static ApplicationException systemError(String operation, Throwable cause) {
+        return new Builder()
+            .errorCode("SYS_001")
+            .category("SYSTEM")
+            .severityLevel(4)
+            .userMessage("A system error occurred. Please try again later")
+            .technicalMessage("System error during operation: " + operation)
+            .cause(cause)
+            .addMetadata("operation", operation)
+            .build();
+    }
+}
+
+// Usage example
+public class ExceptionBuilderExample {
+    public static void validateUser(String username, String email, int age) throws ApplicationException {
+        if (username == null || username.trim().isEmpty()) {
+            throw ApplicationException.validationError("username", username, "Username cannot be empty");
+        }
+        
+        if (email == null || !email.contains("@")) {
+            throw ApplicationException.validationError("email", email, "Invalid email format");
+        }
+        
+        if (age < 0 || age > 150) {
+            throw ApplicationException.validationError("age", age, "Age must be between 0 and 150");
+        }
+    }
+    
+    public static void authenticateUser(String username, String password) throws ApplicationException {
+        // Simulate authentication logic
+        if (!"validUser".equals(username) || !"validPassword".equals(password)) {
+            throw ApplicationException.authenticationError(username, "password");
+        }
+    }
+    
+    public static void performDatabaseOperation() throws ApplicationException {
+        try {
+            // Simulate database operation that fails
+            throw new SQLException("Connection timeout");
+        } catch (SQLException e) {
+            throw ApplicationException.systemError("database_save_user", e);
+        }
+    }
+    
+    public static void main(String[] args) {
+        // Test validation exception
+        try {
+            validateUser("", "invalid-email", -5);
+        } catch (ApplicationException e) {
+            System.err.println("Validation Error:");
+            System.err.println("  Error Code: " + e.getErrorCode());
+            System.err.println("  Category: " + e.getCategory());
+            System.err.println("  User Message: " + e.getUserMessage());
+            System.err.println("  Technical Message: " + e.getTechnicalMessage());
+            System.err.println("  Metadata: " + e.getMetadata());
+        }
+        
+        // Test authentication exception
+        try {
+            authenticateUser("invalidUser", "wrongPassword");
+        } catch (ApplicationException e) {
+            System.err.println("\nAuthentication Error:");
+            System.err.println("  Error Code: " + e.getErrorCode());
+            System.err.println("  Severity: " + e.getSeverityLevel());
+            System.err.println("  User Message: " + e.getUserMessage());
+        }
+        
+        // Test system exception
+        try {
+            performDatabaseOperation();
+        } catch (ApplicationException e) {
+            System.err.println("\nSystem Error:");
+            System.err.println("  Error Code: " + e.getErrorCode());
+            System.err.println("  Category: " + e.getCategory());
+            System.err.println("  Severity: " + e.getSeverityLevel());
+            System.err.println("  Cause: " + e.getCause().getClass().getSimpleName());
+            System.err.println("  Cause Message: " + e.getCause().getMessage());
+        }
+    }
+}
+```
+
+Exception Translation and Wrapping Patterns:
+═══════════════════════════════════════════
+
+Example 4: Exception Translation Layers
+─────────────────────────────────────────────
+
+```java
+// Service layer exceptions
+class ServiceException extends Exception {
+    private final String serviceName;
+    private final String operation;
+    
+    public ServiceException(String serviceName, String operation, String message, Throwable cause) {
+        super(String.format("Service '%s' failed during '%s': %s", serviceName, operation, message), cause);
+        this.serviceName = serviceName;
+        this.operation = operation;
+    }
+    
+    public String getServiceName() { return serviceName; }
+    public String getOperation() { return operation; }
+}
+
+// Repository layer that translates low-level exceptions
+class UserRepository {
+    
+    public void saveUser(User user) throws ServiceException {
+        try {
+            // Simulate database operation
+            if (user.getUsername().equals("duplicate")) {
+                throw new SQLException("Duplicate key violation", "23000", 1062);
+            }
+            if (user.getUsername().equals("timeout")) {
+                throw new SQLException("Connection timeout", "08S01", 0);
+            }
+            // Successful save
+            System.out.println("User saved: " + user.getUsername());
+            
+        } catch (SQLException e) {
+            // Translate SQL exceptions to service exceptions
+            if ("23000".equals(e.getSQLState())) {
+                throw new ServiceException("UserRepository", "saveUser", 
+                    "User with username '" + user.getUsername() + "' already exists", e);
+            } else if ("08S01".equals(e.getSQLState())) {
+                throw new ServiceException("UserRepository", "saveUser", 
+                    "Database connection timeout", e);
+            } else {
+                throw new ServiceException("UserRepository", "saveUser", 
+                    "Database operation failed", e);
+            }
+        }
+    }
+    
+    public User findUser(String username) throws ServiceException {
+        try {
+            // Simulate file system operation
+            if ("notfound".equals(username)) {
+                throw new FileNotFoundException("User file not found: " + username + ".dat");
+            }
+            if ("accessdenied".equals(username)) {
+                throw new IOException("Access denied to user file: " + username + ".dat");
+            }
+            
+            return new User(username, username + "@example.com");
+            
+        } catch (FileNotFoundException e) {
+            throw new ServiceException("UserRepository", "findUser", 
+                "User '" + username + "' not found", e);
+        } catch (IOException e) {
+            throw new ServiceException("UserRepository", "findUser", 
+                "Failed to access user data for '" + username + "'", e);
+        }
+    }
+}
+
+// Service layer that provides business-level exceptions
+class UserService {
+    private UserRepository repository = new UserRepository();
+    
+    public void registerUser(String username, String email) throws UserRegistrationException {
+        try {
+            // Validate input
+            validateUserInput(username, email);
+            
+            // Create user
+            User user = new User(username, email);
+            
+            // Save user (may throw ServiceException)
+            repository.saveUser(user);
+            
+            System.out.println("User registered successfully: " + username);
+            
+        } catch (ValidationException e) {
+            throw new UserRegistrationException("User validation failed", e);
+        } catch (ServiceException e) {
+            // Determine if this is a business error or system error
+            if (e.getMessage().contains("already exists")) {
+                throw new UserRegistrationException("Username '" + username + "' is already taken", e);
+            } else {
+                throw new UserRegistrationException("Registration failed due to system error", e);
+            }
+        }
+    }
+    
+    public User getUser(String username) throws UserNotFoundException, SystemException {
+        try {
+            return repository.findUser(username);
+        } catch (ServiceException e) {
+            if (e.getMessage().contains("not found")) {
+                throw new UserNotFoundException("User '" + username + "' does not exist", e);
+            } else {
+                throw new SystemException("Failed to retrieve user data", e);
+            }
+        }
+    }
+    
+    private void validateUserInput(String username, String email) throws ValidationException {
+        if (username == null || username.trim().isEmpty()) {
+            throw new ValidationException("Username cannot be empty");
+        }
+        if (username.length() < 3) {
+            throw new ValidationException("Username must be at least 3 characters long");
+        }
+        if (email == null || !email.contains("@")) {
+            throw new ValidationException("Invalid email format");
+        }
+    }
+}
+
+// Business-level exception classes
+class UserRegistrationException extends Exception {
+    public UserRegistrationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+class UserNotFoundException extends Exception {
+    public UserNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+class SystemException extends Exception {
+    public SystemException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+class ValidationException extends Exception {
+    public ValidationException(String message) {
+        super(message);
+    }
+}
+
+// Simple User class
+class User {
+    private String username;
+    private String email;
+    
+    public User(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
+    
+    public String getUsername() { return username; }
+    public String getEmail() { return email; }
+}
+
+// Application layer demonstrating exception handling
+public class ExceptionTranslationExample {
+    public static void main(String[] args) {
+        UserService userService = new UserService();
+        
+        // Test successful registration
+        try {
+            userService.registerUser("john_doe", "john@example.com");
+        } catch (UserRegistrationException e) {
+            System.err.println("Registration failed: " + e.getMessage());
+        }
+        
+        // Test duplicate user registration
+        try {
+            userService.registerUser("duplicate", "duplicate@example.com");
+        } catch (UserRegistrationException e) {
+            System.err.println("Registration failed: " + e.getMessage());
+            System.err.println("Root cause: " + getRootCause(e).getClass().getSimpleName());
+        }
+        
+        // Test database timeout
+        try {
+            userService.registerUser("timeout", "timeout@example.com");
+        } catch (UserRegistrationException e) {
+            System.err.println("Registration failed: " + e.getMessage());
+            System.err.println("Root cause: " + getRootCause(e).getMessage());
+        }
+        
+        // Test user lookup - not found
+        try {
+            User user = userService.getUser("notfound");
+        } catch (UserNotFoundException e) {
+            System.err.println("User lookup failed: " + e.getMessage());
+        } catch (SystemException e) {
+            System.err.println("System error during user lookup: " + e.getMessage());
+        }
+        
+        // Test user lookup - access denied
+        try {
+            User user = userService.getUser("accessdenied");
+        } catch (UserNotFoundException e) {
+            System.err.println("User lookup failed: " + e.getMessage());
+        } catch (SystemException e) {
+            System.err.println("System error during user lookup: " + e.getMessage());
+        }
+        
+        // Test validation error
+        try {
+            userService.registerUser("", "invalid");
+        } catch (UserRegistrationException e) {
+            System.err.println("Registration failed: " + e.getMessage());
+            System.err.println("Root cause type: " + getRootCause(e).getClass().getSimpleName());
+        }
+    }
+    
+    // Utility method to find root cause
+    private static Throwable getRootCause(Throwable throwable) {
+        Throwable cause = throwable;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        return cause;
+    }
+}
+```
+
+Best Practices for Custom Exceptions:
+═══════════════════════════════════════════
+
+1. **Naming Conventions:**
+```java
+// Good naming - descriptive and follows convention
+class InsufficientFundsException extends Exception { }
+class InvalidAccountNumberException extends RuntimeException { }
+class PaymentProcessingException extends Exception { }
+
+// Poor naming - generic and unclear
+class MyException extends Exception { }
+class ErrorException extends Exception { }
+class BadInputException extends Exception { }
+```
+
+2. **Exception Hierarchy Design:**
+```java
+// Well-designed hierarchy
+abstract class BankingException extends Exception {
+    protected BankingException(String message) { super(message); }
+    protected BankingException(String message, Throwable cause) { super(message, cause); }
+}
+
+class AccountException extends BankingException {
+    protected AccountException(String message) { super(message); }
+    protected AccountException(String message, Throwable cause) { super(message, cause); }
+}
+
+class InsufficientFundsException extends AccountException {
+    public InsufficientFundsException(double requested, double available) {
+        super(String.format("Insufficient funds: requested=%.2f, available=%.2f", requested, available));
+    }
+}
+
+class InvalidAccountException extends AccountException {
+    public InvalidAccountException(String accountNumber) {
+        super("Invalid account number: " + accountNumber);
+    }
+}
+```
+
+3. **Constructor Patterns:**
+```java
+class WellDesignedException extends Exception {
+    private final String errorCode;
+    private final Object context;
+    
+    // Default constructor
+    public WellDesignedException() {
+        this("DEFAULT_ERROR", "An error occurred", null, null);
+    }
+    
+    // Message constructor
+    public WellDesignedException(String message) {
+        this("DEFAULT_ERROR", message, null, null);
+    }
+    
+    // Message and cause constructor
+    public WellDesignedException(String message, Throwable cause) {
+        this("DEFAULT_ERROR", message, cause, null);
+    }
+    
+    // Full constructor
+    public WellDesignedException(String errorCode, String message, Throwable cause, Object context) {
+        super(message, cause);
+        this.errorCode = errorCode;
+        this.context = context;
+    }
+    
+    public String getErrorCode() { return errorCode; }
+    public Object getContext() { return context; }
+}
+```
+
+4. **Documentation and Usage:**
+```java
+/**
+ * Thrown when a financial transaction cannot be completed due to insufficient funds.
+ * 
+ * This exception provides detailed information about the failed transaction,
+ * including the requested amount, available balance, and account information.
+ * 
+ * @author Your Name
+ * @version 1.0
+ * @since 1.0
+ */
+public class InsufficientFundsException extends Exception {
+    
+    /**
+     * Creates an exception for insufficient funds scenario.
+     * 
+     * @param requestedAmount the amount that was requested for withdrawal
+     * @param availableBalance the current account balance
+     * @param accountNumber the account number where the transaction was attempted
+     * @throws IllegalArgumentException if any amount is negative
+     */
+    public InsufficientFundsException(double requestedAmount, double availableBalance, String accountNumber) {
+        super(formatMessage(requestedAmount, availableBalance, accountNumber));
+        
+        if (requestedAmount < 0 || availableBalance < 0) {
+            throw new IllegalArgumentException("Amounts cannot be negative");
+        }
+        
+        this.requestedAmount = requestedAmount;
+        this.availableBalance = availableBalance;
+        this.accountNumber = accountNumber;
+    }
+    
+    private static String formatMessage(double requested, double available, String account) {
+        return String.format(
+            "Insufficient funds in account %s: requested $%.2f, available $%.2f (shortfall: $%.2f)",
+            account, requested, available, requested - available
+        );
+    }
+    
+    // Additional methods and fields...
+}
+```
+
+**Summary - User Defined Exceptions:**
+
+**Key Benefits:**
+- **Domain Clarity**: Exception names clearly indicate what went wrong
+- **Enhanced Information**: Can include specific data relevant to the error
+- **Better Error Handling**: Enables precise catch blocks for different scenarios
+- **Improved Debugging**: Easier to trace and fix specific types of errors
+- **Code Documentation**: Self-documenting code through meaningful exception names
+
+**Design Principles:**
+- **Single Responsibility**: Each exception should represent one specific error condition
+- **Hierarchy**: Use inheritance to create logical groupings of related exceptions
+- **Immutability**: Exception objects should be immutable once created
+- **Serialization**: Consider implementing Serializable for distributed applications
+- **Performance**: Be mindful of exception creation overhead in performance-critical code
+
+**Best Practices:**
+- Extend appropriate base classes (Exception for checked, RuntimeException for unchecked)
+- Provide multiple constructors for different use cases
+- Include relevant context information in exception objects
+- Use descriptive names that clearly indicate the error condition
+- Document when and why exceptions are thrown
+- Consider exception translation at architectural boundaries
+- Don't use exceptions for normal control flow
+- Preserve original exception information when wrapping
+
+Custom exceptions are essential for building robust, maintainable Java applications that provide clear error information and enable sophisticated error handling strategies tailored to specific business requirements.
